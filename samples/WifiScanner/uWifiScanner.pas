@@ -111,7 +111,7 @@ begin
         Begin
         l:=listview1.Items.Add;
 
-           SDummy:=PChar(@pAvailableNetworkList^.Network[j].dot11Ssid.ucSSID);
+           SDummy:=PAnsiChar(@pAvailableNetworkList^.Network[j].dot11Ssid.ucSSID);
            l.Caption:=(SDummy);
            l.SubItems.Add(Format('%d ',[pAvailableNetworkList^.Network[j].wlanSignalQuality])+'%');
            //SDummy := GetEnumName(TypeInfo(Tndu_DOT11_AUTH_ALGORITHM),integer(pAvailableNetworkList^.Network[j].dot11DefaultAuthAlgorithm)) ;

@@ -38,7 +38,7 @@ object Form1: TForm1
         Width = 100
       end>
     GridLines = True
-    TabOrder = 0
+    TabOrder = 1
     ViewStyle = vsReport
   end
   object Panel1: TPanel
@@ -47,7 +47,7 @@ object Form1: TForm1
     Width = 554
     Height = 89
     Align = alTop
-    TabOrder = 1
+    TabOrder = 0
     object Label1: TLabel
       Left = 17
       Top = 51
@@ -68,15 +68,14 @@ object Form1: TForm1
       Width = 479
       Height = 21
       Style = csDropDownList
-      ItemHeight = 13
-      TabOrder = 0
+      TabOrder = 1
     end
     object Edit1: TEdit
       Left = 66
       Top = 8
       Width = 479
       Height = 21
-      TabOrder = 1
+      TabOrder = 0
       Text = 'Edit1'
     end
   end
