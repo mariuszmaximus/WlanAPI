@@ -93,7 +93,6 @@ const
     NDU_WLAN_REASON_CODE_RANGE_SIZE - 1);
 
   // range for MSM
-  //
   NDU_WLAN_REASON_CODE_MSM_BASE = NDU_L2_REASON_CODE_DOT11_MSM_BASE;
 
   NDU_WLAN_REASON_CODE_MSM_CONNECT_BASE = (NDU_WLAN_REASON_CODE_MSM_BASE +
@@ -103,7 +102,6 @@ const
     NDU_WLAN_REASON_CODE_RANGE_SIZE - 1);
 
   // range for MSMSEC
-  //
   NDU_WLAN_REASON_CODE_MSMSEC_BASE = NDU_L2_REASON_CODE_DOT11_SECURITY_BASE;
 
   NDU_WLAN_REASON_CODE_MSMSEC_CONNECT_BASE = (NDU_WLAN_REASON_CODE_MSMSEC_BASE +
@@ -113,14 +111,12 @@ const
     NDU_WLAN_REASON_CODE_RANGE_SIZE - 1);
 
   // AC network incompatible reason codes
-  //
   NDU_WLAN_REASON_CODE_NETWORK_NOT_COMPATIBLE =
     (NDU_WLAN_REASON_CODE_AC_BASE + 1);
   NDU_WLAN_REASON_CODE_PROFILE_NOT_COMPATIBLE =
     (NDU_WLAN_REASON_CODE_AC_BASE + 2);
 
   // AC connect reason code
-  //
   NDU_WLAN_REASON_CODE_NO_AUTO_CONNECTION =
     (NDU_WLAN_REASON_CODE_AC_CONNECT_BASE + 1);
   NDU_WLAN_REASON_CODE_NOT_VISIBLE = (NDU_WLAN_REASON_CODE_AC_CONNECT_BASE + 2);
@@ -148,7 +144,6 @@ const
     (NDU_WLAN_REASON_CODE_AC_CONNECT_BASE + 14);
 
   // Profile validation errors
-  //
   NDU_WLAN_REASON_CODE_INVALID_PROFILE_SCHEMA =
     (NDU_WLAN_REASON_CODE_PROFILE_BASE + 1);
   NDU_WLAN_REASON_CODE_PROFILE_MISSING =
@@ -189,7 +184,6 @@ const
     (NDU_WLAN_REASON_CODE_PROFILE_BASE + 19);
 
   // MSM network incompatible reasons
-  //
   NDU_WLAN_REASON_CODE_UNSUPPORTED_SECURITY_SET_BY_OS =
     (NDU_WLAN_REASON_CODE_MSM_BASE + 1);
   NDU_WLAN_REASON_CODE_UNSUPPORTED_SECURITY_SET =
@@ -200,7 +194,6 @@ const
 
   // MSM connection failure reasons, to be defined
   // failure reason codes
-  //
   NDU_WLAN_REASON_CODE_USER_CANCELLED =
     (NDU_WLAN_REASON_CODE_MSM_CONNECT_BASE + 1);
   NDU_WLAN_REASON_CODE_ASSOCIATION_FAILURE =
@@ -237,7 +230,6 @@ const
     (NDU_WLAN_REASON_CODE_MSM_CONNECT_BASE + 17);
 
   // MSMSEC reason codes
-  //
   NDU_WLAN_REASON_CODE_MSMSEC_MIN = NDU_WLAN_REASON_CODE_MSMSEC_BASE;
   NDU_WLAN_REASON_CODE_MSMSEC_PROFILE_INVALID_KEY_INDEX =
     (NDU_WLAN_REASON_CODE_MSMSEC_BASE + 1);
@@ -967,6 +959,59 @@ function WlanUIEditProfile(dwClientVersion: DWORD; wstrProfileName: LPCWSTR;
   pInterfaceGuid: PGUID; hWnd: hWnd; wlStartPage: Tndu_WL_DISPLAY_PAGES;
   pReserved: PVOID; pWlanReasonCode: Pndu_WLAN_REASON_CODE): DWORD; stdcall;
 
+
+type
+  WLAN_HOSTED_NETWORK_REASON = (
+  wlan_hosted_network_reason_success                               = 0,
+  wlan_hosted_network_reason_unspecified,
+  wlan_hosted_network_reason_bad_parameters,
+  wlan_hosted_network_reason_service_shutting_down,
+  wlan_hosted_network_reason_insufficient_resources,
+  wlan_hosted_network_reason_elevation_required,
+  wlan_hosted_network_reason_read_only,
+  wlan_hosted_network_reason_persistence_failed,
+  wlan_hosted_network_reason_crypt_error,
+  wlan_hosted_network_reason_impersonation,
+  wlan_hosted_network_reason_stop_before_start,
+  wlan_hosted_network_reason_interface_available,
+  wlan_hosted_network_reason_interface_unavailable,
+  wlan_hosted_network_reason_miniport_stopped,
+  wlan_hosted_network_reason_miniport_started,
+  wlan_hosted_network_reason_incompatible_connection_started,
+  wlan_hosted_network_reason_incompatible_connection_stopped,
+  wlan_hosted_network_reason_user_action,
+  wlan_hosted_network_reason_client_abort,
+  wlan_hosted_network_reason_ap_start_failed,
+  wlan_hosted_network_reason_peer_arrived,
+  wlan_hosted_network_reason_peer_departed,
+  wlan_hosted_network_reason_peer_timeout,
+  wlan_hosted_network_reason_gp_denied,
+  wlan_hosted_network_reason_service_unavailable,
+  wlan_hosted_network_reason_device_change,
+  wlan_hosted_network_reason_properties_change,
+  wlan_hosted_network_reason_virtual_station_blocking_use,
+  wlan_hosted_network_reason_service_available_on_virtual_station
+
+  );
+  PWLAN_HOSTED_NETWORK_REASON = ^WLAN_HOSTED_NETWORK_REASON;
+
+function WlanHostedNetworkForceStart(hClientHandle: Handle; pFailReason: PWLAN_HOSTED_NETWORK_REASON; pvReserved: pointer): DWORD; stdcall;
+function WlanHostedNetworkForceStop(hClientHandle: Handle; pFailReason: PWLAN_HOSTED_NETWORK_REASON; pvReserved: pointer): DWORD; stdcall;
+//function WlanHostedNetworkFreeWCNSettings: DWORD; stdcall;
+//function WlanHostedNetworkHlpQueryEverUsed: DWORD; stdcall;
+function WlanHostedNetworkInitSettings: DWORD; stdcall;
+function WlanHostedNetworkQueryProperty: DWORD; stdcall;
+function WlanHostedNetworkQuerySecondaryKey: DWORD; stdcall;
+function WlanHostedNetworkQueryStatus: DWORD; stdcall;
+//function WlanHostedNetworkQueryWCNSettings: DWORD; stdcall;
+function WlanHostedNetworkRefreshSecuritySettings: DWORD; stdcall;
+function WlanHostedNetworkSetProperty: DWORD; stdcall;
+function WlanHostedNetworkSetSecondaryKey: DWORD; stdcall;
+//function WlanHostedNetworkSetWCNSettings: DWORD; stdcall;
+function WlanHostedNetworkStartUsing(hClientHandle: Handle; pFailReason: PWLAN_HOSTED_NETWORK_REASON; pvReserved: pointer): DWORD; stdcall;
+function WlanHostedNetworkStopUsing(hClientHandle: Handle; pFailReason: PWLAN_HOSTED_NETWORK_REASON; pvReserved: pointer): DWORD; stdcall;
+
+
 implementation
 
 function WlanOpenHandle; external wlan_api_dll name 'WlanOpenHandle';
@@ -1023,5 +1068,22 @@ function WlanSetSecuritySettings;
 function WlanGetSecuritySettings;
   external wlan_api_dll name 'WlanGetSecuritySettings';
 function WlanUIEditProfile; external wlan_api_dll name 'WlanUIEditProfile';
+
+
+function WlanHostedNetworkForceStart; external wlan_api_dll name 'WlanHostedNetworkForceStart';
+function WlanHostedNetworkForceStop; external wlan_api_dll name 'WlanHostedNetworkForceStop';
+//function WlanHostedNetworkFreeWCNSettings; external wlan_api_dll name 'WlanHostedNetworkFreeWCNSettings';
+//function WlanHostedNetworkHlpQueryEverUsed; external wlan_api_dll name 'WlanHostedNetworkHlpQueryEverUsed';
+function WlanHostedNetworkInitSettings; external wlan_api_dll name 'WlanHostedNetworkInitSettings';
+function WlanHostedNetworkQueryProperty; external wlan_api_dll name 'WlanHostedNetworkQueryProperty';
+function WlanHostedNetworkQuerySecondaryKey; external wlan_api_dll name 'WlanHostedNetworkQuerySecondaryKey';
+function WlanHostedNetworkQueryStatus; external wlan_api_dll name 'WlanHostedNetworkQueryStatus';
+//function WlanHostedNetworkQueryWCNSettings; external wlan_api_dll name 'WlanHostedNetworkQueryWCNSettings';
+function WlanHostedNetworkRefreshSecuritySettings; external wlan_api_dll name 'WlanHostedNetworkRefreshSecuritySettings';
+function WlanHostedNetworkSetProperty; external wlan_api_dll name 'WlanHostedNetworkSetProperty';
+function WlanHostedNetworkSetSecondaryKey; external wlan_api_dll name 'WlanHostedNetworkSetSecondaryKey';
+//function WlanHostedNetworkSetWCNSettings; external wlan_api_dll name 'WlanHostedNetworkSetWCNSettings';
+function WlanHostedNetworkStartUsing; external wlan_api_dll name 'WlanHostedNetworkStartUsing';
+function WlanHostedNetworkStopUsing; external wlan_api_dll name 'WlanHostedNetworkStopUsing';
 
 end.
