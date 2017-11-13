@@ -6,7 +6,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, XPMan, StdCtrls, ExtCtrls, ComCtrls,  nduWlanAPI,
-  nduWlanTypes;
+  nduWlanTypes, TypInfo;
 
 type
   TForm1 = class(TForm)
@@ -16,10 +16,21 @@ type
     Label1: TLabel;
     Edit1: TEdit;
     Label2: TLabel;
-    procedure Scan();
+    Button1: TButton;
+    Button2: TButton;
+    Button3: TButton;
+    Button4: TButton;
     procedure FormCreate(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
   private
+    hClient              : THandle;
     { Private declarations }
+    procedure WlanOpen();
+    procedure WlanClose();
+    procedure WlanScan();
+    procedure RegisterNotification;
   public
     { Public declarations }
   end;
@@ -30,6 +41,53 @@ var
 implementation
 
 {$R *.dfm}
+
+
+const
+  WLAN_NOTIFICATION_SOURCE_NONE = 0;
+  WLAN_NOTIFICATION_SOURCE_ONEX = 4;
+  WLAN_NOTIFICATION_SOURCE_ACM = 8;
+  WLAN_NOTIFICATION_SOURCE_MSM = $10;
+  WLAN_NOTIFICATION_SOURCE_SECURITY = $20;
+  WLAN_NOTIFICATION_SOURCE_IHV = $40;
+  WLAN_NOTIFICATION_SOURCE_HNWK = $80;
+  WLAN_NOTIFICATION_SOURCE_ALL = $FFFF;
+
+
+function NotificationSource_To_String(NotificationSource: DWORD ): string;
+begin
+  Result:='';
+  case NotificationSource of
+    WLAN_NOTIFICATION_SOURCE_NONE : Result:= 'WLAN_NOTIFICATION_SOURCE_NONE';
+    WLAN_NOTIFICATION_SOURCE_ONEX : Result:= 'WLAN_NOTIFICATION_SOURCE_ONEX';
+    WLAN_NOTIFICATION_SOURCE_ACM : Result:= 'WLAN_NOTIFICATION_SOURCE_ACM';
+    WLAN_NOTIFICATION_SOURCE_MSM : Result:= 'WLAN_NOTIFICATION_SOURCE_MSM';
+    WLAN_NOTIFICATION_SOURCE_SECURITY : Result:= 'WLAN_NOTIFICATION_SOURCE_SECURITY';
+    WLAN_NOTIFICATION_SOURCE_IHV : Result:= 'WLAN_NOTIFICATION_SOURCE_IHV';
+    WLAN_NOTIFICATION_SOURCE_HNWK : Result:= 'WLAN_NOTIFICATION_SOURCE_HNWK';
+    WLAN_NOTIFICATION_SOURCE_ALL : Result:= 'WLAN_NOTIFICATION_SOURCE_ALL';
+  else
+    Result := 'NotificationSource???';
+  end;
+end;
+
+//NotificationCode,wlanData^.NotificationSource)
+function NotificationCode_To_String(NotificationCode: DWORD; NotificationSource: DWord ): string;
+begin
+  Result:='';
+  case NotificationSource of
+    WLAN_NOTIFICATION_SOURCE_NONE : Result:= 'WLAN_NOTIFICATION_SOURCE_NONE';
+    WLAN_NOTIFICATION_SOURCE_ONEX : Result:= 'WLAN_NOTIFICATION_SOURCE_ONEX';
+    WLAN_NOTIFICATION_SOURCE_ACM : Result:=  TypInfo.GetEnumName(System.TypeInfo(WLAN_NOTIFICATION_ACM),integer(NotificationCode));
+    WLAN_NOTIFICATION_SOURCE_MSM : Result:= TypInfo.GetEnumName(System.TypeInfo(WLAN_NOTIFICATION_MSM),integer(NotificationCode));
+    WLAN_NOTIFICATION_SOURCE_SECURITY : Result:= 'WLAN_NOTIFICATION_SOURCE_SECURITY';
+    WLAN_NOTIFICATION_SOURCE_IHV : Result:= 'WLAN_NOTIFICATION_SOURCE_IHV';
+    WLAN_NOTIFICATION_SOURCE_HNWK : Result:= 'WLAN_NOTIFICATION_SOURCE_HNWK';
+    WLAN_NOTIFICATION_SOURCE_ALL : Result:= 'WLAN_NOTIFICATION_SOURCE_ALL';
+  else
+    Result := 'NotificationSource???='+inttostr(NotificationSource);
+  end;
+end;
 
 function DOT11_AUTH_ALGORITHM_To_String( Dummy :Tndu_DOT11_AUTH_ALGORITHM):String;
 begin
@@ -64,12 +122,10 @@ begin
     end;
 end;
 
-procedure TFORM1.Scan();
+procedure TFORM1.WlanScan();
 const
-WLAN_AVAILABLE_NETWORK_INCLUDE_ALL_ADHOC_PROFILES =$00000001;
+  WLAN_AVAILABLE_NETWORK_INCLUDE_ALL_ADHOC_PROFILES =$00000001;
 var
-  hClient              : THandle;
-  dwVersion            : DWORD;
   ResultInt            : DWORD;
   pInterface           : Pndu_WLAN_INTERFACE_INFO_LIST;
   i                    : Integer;
@@ -79,12 +135,7 @@ var
   SDummy               : string;
   l:tlistItem;
 begin
-  ResultInt:=WlanOpenHandle(1, nil, @dwVersion, @hClient);
-  if  ResultInt<> ERROR_SUCCESS then
-  begin
-     WriteLn('Error Open CLient'+IntToStr(ResultInt));
-     Exit;
-  end;
+  //
 
   ResultInt:=WlanEnumInterfaces(hClient, nil, @pInterface);
   if  ResultInt<> ERROR_SUCCESS then
@@ -92,6 +143,9 @@ begin
      WriteLn('Error Enum Interfaces '+IntToStr(ResultInt));
      exit;
   end;
+
+  COMBOBOX1.Clear;
+  listview1.Clear;
 
   for i := 0 to pInterface^.dwNumberOfItems - 1 do
   begin
@@ -109,7 +163,7 @@ begin
 
         for j := 0 to pAvailableNetworkList^.dwNumberOfItems - 1 do
         Begin
-        l:=listview1.Items.Add;
+          l:=listview1.Items.Add;
 
            SDummy:=PAnsiChar(@pAvailableNetworkList^.Network[j].dot11Ssid.ucSSID);
            l.Caption:=(SDummy);
@@ -121,14 +175,76 @@ begin
            l.SubItems.Add(SDummy);
 
         End;
+
+      WlanFreeMemory(pAvailableNetworkList);
   end;
 
-  WlanCloseHandle(hClient, nil);
+
 
 end;
+procedure TForm1.WlanClose;
+begin
+   WlanCloseHandle(hClient, nil);
+end;
+
+procedure TForm1.WlanOpen;
+var
+  ResultInt            : DWORD;
+  dwVersion            : DWORD;
+begin
+  ResultInt:=WlanOpenHandle(1, nil, @dwVersion, @hClient);
+  if  ResultInt<> ERROR_SUCCESS then
+  begin
+    hClient := 0;
+     WriteLn('Error Open CLient'+IntToStr(ResultInt));
+     Exit;
+  end;
+end;
+
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  WlanOpen();
+end;
+
+procedure TForm1.Button3Click(Sender: TObject);
+begin
+  WlanScan();
+end;
+
+procedure TForm1.Button4Click(Sender: TObject);
+begin
+  RegisterNotification();
+end;
+
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-Scan();
+  hClient := 0;
+  WlanOpen();
+  WlanScan();
+end;
+
+
+procedure NotificationCallback(wlanData:Pndu_WLAN_NOTIFICATION_DATA; context: pointer); stdcall;
+begin
+   AllocConsole;
+   Writeln('NotificationSource=',NotificationSource_To_String(wlanData^.NotificationSource));
+   Writeln('NotificationCode=',  NotificationCode_To_String(wlanData^.NotificationCode,wlanData^.NotificationSource) );
+   Writeln('InterfaceGuid=', GUIDToString( wlanData^.InterfaceGuid));
+   Writeln('dwDataSize=',wlanData^.dwDataSize);
+
+   if wlanData^.NotificationCode = Integer(wlan_notification_msm_signal_quality_change) then
+   begin
+     Writeln('signal_quality_change: ', pcardinal(wlanData^.pData)^);
+   end;
+   
+
+   Writeln('');
+end;
+
+procedure TForm1.RegisterNotification;
+begin
+  WlanRegisterNotification( hClient, NDU_WLAN_NOTIFICATION_SOURCE_ALL, False,
+   @NotificationCallback,nil,nil,0);
 end;
 
 end.

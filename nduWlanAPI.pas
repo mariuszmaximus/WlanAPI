@@ -59,8 +59,8 @@ type
 
 {$MINENUMSIZE 4}
 
-  Pndu_WLAN_CONNECTION_MODE = ^Tndu_WLAN_CONNECTION_MODE;
-  Tndu_WLAN_CONNECTION_MODE = (wlan_connection_mode_profile = 0,
+  pWLAN_CONNECTION_MODE = ^WLAN_CONNECTION_MODE;
+  WLAN_CONNECTION_MODE = (wlan_connection_mode_profile = 0,
     wlan_connection_mode_temporary_profile,
     wlan_connection_mode_discovery_secure,
     wlan_connection_mode_discovery_unsecure, wlan_connection_mode_auto,
@@ -473,7 +473,7 @@ type
 
   Tndu_WLAN_CONNECTION_ATTRIBUTES = record
     isState: Tndu_WLAN_INTERFACE_STATE;
-    wlanConnectionMode: Tndu_WLAN_CONNECTION_MODE;
+    wlanConnectionMode: WLAN_CONNECTION_MODE;
     strProfileName: array [0 .. NDU_WLAN_MAX_NAME_LENGTH - 1] of wchar;
     wlanAssociationAttributes: Tndu_WLAN_ASSOCIATION_ATTRIBUTES;
     wlanSecurityAttributes: Tndu_WLAN_SECURITY_ATTRIBUTES;
@@ -590,7 +590,7 @@ type
   Pndu_WLAN_CONNECTION_PARAMETERS = ^Tndu_WLAN_CONNECTION_PARAMETERS;
 
   Tndu_WLAN_CONNECTION_PARAMETERS = record
-    wlanConnectionMode: Tndu_WLAN_CONNECTION_MODE;
+    wlanConnectionMode: WLAN_CONNECTION_MODE;
     strProfile: LPCTSTR;
     pDot11Ssid: Pndu_DOT11_SSID;
     pDesiredBssidList: Pndu_DOT11_BSSID_LIST;
@@ -598,10 +598,10 @@ type
     dwFlags: DWORD;
   end;
 
-  Pndu_WLAN_MSM_NOTIFICATION_DATA = ^Tndu_WLAN_MSM_NOTIFICATION_DATA;
+  pWLAN_MSM_NOTIFICATION_DATA = ^WLAN_MSM_NOTIFICATION_DATA;
 
-  Tndu_WLAN_MSM_NOTIFICATION_DATA = record
-    wlanConnectionMode: Tndu_WLAN_CONNECTION_MODE;
+  WLAN_MSM_NOTIFICATION_DATA = record
+    wlanConnectionMode: WLAN_CONNECTION_MODE;
     strProfileName: array [0 .. NDU_WLAN_MAX_NAME_LENGTH - 1] of wchar;
     dot11Ssid: Tndu_DOT11_SSID;
     dot11BssType: Tndu_DOT11_BSS_TYPE;
@@ -612,11 +612,11 @@ type
     wlanReasonCode: Tndu_WLAN_REASON_CODE;
   end;
 
-  Pndu_WLAN_CONNECTION_NOTIFICATION_DATA = ^
-    Tndu_WLAN_CONNECTION_NOTIFICATION_DATA;
+  pWLAN_CONNECTION_NOTIFICATION_DATA = ^
+    WLAN_CONNECTION_NOTIFICATION_DATA;
 
-  Tndu_WLAN_CONNECTION_NOTIFICATION_DATA = record
-    wlanConnectionMode: Tndu_WLAN_CONNECTION_MODE;
+  WLAN_CONNECTION_NOTIFICATION_DATA = record
+    wlanConnectionMode: WLAN_CONNECTION_MODE;
     strProfileName: array [0 .. NDU_WLAN_MAX_NAME_LENGTH - 1] of wchar;
     dot11Ssid: Tndu_DOT11_SSID;
     dot11BssType: Tndu_DOT11_BSS_TYPE;
@@ -637,8 +637,8 @@ const
 
 type
 {$MINENUMSIZE 4}
-  Pndu_WLAN_NOTIFICATION_ACM = ^Tndu_WLAN_NOTIFICATION_ACM;
-  Tndu_WLAN_NOTIFICATION_ACM =
+  pWLAN_NOTIFICATION_ACM = ^WLAN_NOTIFICATION_ACM;
+  WLAN_NOTIFICATION_ACM =
     (wlan_notification_acm_start = NDU_L2_NOTIFICATION_CODE_PUBLIC_BEGIN,
     wlan_notification_acm_autoconf_enabled,
     wlan_notification_acm_autoconf_disabled,
@@ -646,7 +646,8 @@ type
     wlan_notification_acm_background_scan_disabled,
     wlan_notification_acm_bss_type_change,
     wlan_notification_acm_power_setting_change,
-    wlan_notification_acm_scan_complete, wlan_notification_acm_scan_fail,
+    wlan_notification_acm_scan_complete,
+    wlan_notification_acm_scan_fail,
     wlan_notification_acm_connection_start,
     wlan_notification_acm_connection_complete,
     wlan_notification_acm_connection_attempt_fail,
@@ -658,20 +659,33 @@ type
     wlan_notification_acm_profiles_exhausted,
     wlan_notification_acm_network_not_available,
     wlan_notification_acm_network_available,
-    wlan_notification_acm_disconnecting, wlan_notification_acm_disconnected,
+    wlan_notification_acm_disconnecting,
+    wlan_notification_acm_disconnected,
+    wlan_notification_acm_adhoc_network_state_change,
+    wlan_notification_acm_profile_unblocked,
+    wlan_notification_acm_screen_power_change,
+    wlan_notification_acm_profile_blocked,
+    wlan_notification_acm_scan_list_refresh,
     wlan_notification_acm_end);
 
 {$MINENUMSIZE 4}
-  Pndu_WLAN_NOTIFICATION_MSM = ^Tndu_WLAN_NOTIFICATION_MSM;
-  Tndu_WLAN_NOTIFICATION_MSM =
+  Pndu_WLAN_NOTIFICATION_MSM = ^WLAN_NOTIFICATION_MSM;
+  WLAN_NOTIFICATION_MSM =
     (wlan_notification_msm_start = NDU_L2_NOTIFICATION_CODE_PUBLIC_BEGIN,
-    wlan_notification_msm_associating, wlan_notification_msm_associated,
-    wlan_notification_msm_authenticating, wlan_notification_msm_connected,
-    wlan_notification_msm_roaming_start, wlan_notification_msm_roaming_end,
+    wlan_notification_msm_associating,
+    wlan_notification_msm_associated,
+    wlan_notification_msm_authenticating,
+    wlan_notification_msm_connected,
+    wlan_notification_msm_roaming_start,
+    wlan_notification_msm_roaming_end,
     wlan_notification_msm_radio_state_change,
     wlan_notification_msm_signal_quality_change,
-    wlan_notification_msm_disassociating, wlan_notification_msm_disconnected,
-    wlan_notification_msm_peer_join, wlan_notification_msm_peer_leave,
+    wlan_notification_msm_disassociating,
+    wlan_notification_msm_disconnected,
+    wlan_notification_msm_peer_join,
+    wlan_notification_msm_peer_leave,
+    wlan_notification_msm_adapter_removal,
+    wlan_notification_msm_adapter_operation_mode_change,
     wlan_notification_msm_end);
 
 {$MINENUMSIZE 4}

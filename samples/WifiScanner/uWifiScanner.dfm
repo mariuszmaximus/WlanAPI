@@ -50,7 +50,7 @@ object Form1: TForm1
     TabOrder = 0
     object Label1: TLabel
       Left = 17
-      Top = 51
+      Top = 38
       Width = 43
       Height = 13
       Caption = 'Adapter :'
@@ -64,7 +64,7 @@ object Form1: TForm1
     end
     object ComboBox1: TComboBox
       Left = 66
-      Top = 48
+      Top = 35
       Width = 479
       Height = 21
       Style = csDropDownList
@@ -77,6 +77,41 @@ object Form1: TForm1
       Height = 21
       TabOrder = 0
       Text = 'Edit1'
+    end
+    object Button1: TButton
+      Left = 66
+      Top = 62
+      Width = 75
+      Height = 25
+      Caption = 'WlanOpen'
+      TabOrder = 2
+      OnClick = Button1Click
+    end
+    object Button2: TButton
+      Left = 470
+      Top = 62
+      Width = 75
+      Height = 25
+      Caption = 'WlanClose'
+      TabOrder = 5
+    end
+    object Button3: TButton
+      Left = 147
+      Top = 62
+      Width = 75
+      Height = 25
+      Caption = 'WlanScan'
+      TabOrder = 3
+      OnClick = Button3Click
+    end
+    object Button4: TButton
+      Left = 248
+      Top = 62
+      Width = 137
+      Height = 25
+      Caption = 'RegisterNotification'
+      TabOrder = 4
+      OnClick = Button4Click
     end
   end
 end
