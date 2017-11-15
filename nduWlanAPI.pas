@@ -1026,7 +1026,15 @@ function WlanHostedNetworkStartUsing(hClientHandle: Handle; pFailReason: PWLAN_H
 function WlanHostedNetworkStopUsing(hClientHandle: Handle; pFailReason: PWLAN_HOSTED_NETWORK_REASON; pvReserved: pointer): DWORD; stdcall;
 
 
+
+
+
+
+
 implementation
+
+
+
 
 function WlanOpenHandle; external wlan_api_dll name 'WlanOpenHandle';
 function WlanCloseHandle; external wlan_api_dll name 'WlanCloseHandle';

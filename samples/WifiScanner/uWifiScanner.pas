@@ -20,16 +20,20 @@ type
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
+    Button5: TButton;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
   private
     hClient              : THandle;
+    pInterfaceGuid       : PGUID;
+
     { Private declarations }
     procedure WlanOpen();
     procedure WlanClose();
-    procedure WlanScan();
+    procedure WlanList();
     procedure RegisterNotification;
   public
     { Public declarations }
@@ -43,86 +47,10 @@ implementation
 {$R *.dfm}
 
 
-const
-  WLAN_NOTIFICATION_SOURCE_NONE = 0;
-  WLAN_NOTIFICATION_SOURCE_ONEX = 4;
-  WLAN_NOTIFICATION_SOURCE_ACM = 8;
-  WLAN_NOTIFICATION_SOURCE_MSM = $10;
-  WLAN_NOTIFICATION_SOURCE_SECURITY = $20;
-  WLAN_NOTIFICATION_SOURCE_IHV = $40;
-  WLAN_NOTIFICATION_SOURCE_HNWK = $80;
-  WLAN_NOTIFICATION_SOURCE_ALL = $FFFF;
+uses WlanAPIutils;
 
 
-function NotificationSource_To_String(NotificationSource: DWORD ): string;
-begin
-  Result:='';
-  case NotificationSource of
-    WLAN_NOTIFICATION_SOURCE_NONE : Result:= 'WLAN_NOTIFICATION_SOURCE_NONE';
-    WLAN_NOTIFICATION_SOURCE_ONEX : Result:= 'WLAN_NOTIFICATION_SOURCE_ONEX';
-    WLAN_NOTIFICATION_SOURCE_ACM : Result:= 'WLAN_NOTIFICATION_SOURCE_ACM';
-    WLAN_NOTIFICATION_SOURCE_MSM : Result:= 'WLAN_NOTIFICATION_SOURCE_MSM';
-    WLAN_NOTIFICATION_SOURCE_SECURITY : Result:= 'WLAN_NOTIFICATION_SOURCE_SECURITY';
-    WLAN_NOTIFICATION_SOURCE_IHV : Result:= 'WLAN_NOTIFICATION_SOURCE_IHV';
-    WLAN_NOTIFICATION_SOURCE_HNWK : Result:= 'WLAN_NOTIFICATION_SOURCE_HNWK';
-    WLAN_NOTIFICATION_SOURCE_ALL : Result:= 'WLAN_NOTIFICATION_SOURCE_ALL';
-  else
-    Result := 'NotificationSource???';
-  end;
-end;
-
-//NotificationCode,wlanData^.NotificationSource)
-function NotificationCode_To_String(NotificationCode: DWORD; NotificationSource: DWord ): string;
-begin
-  Result:='';
-  case NotificationSource of
-    WLAN_NOTIFICATION_SOURCE_NONE : Result:= 'WLAN_NOTIFICATION_SOURCE_NONE';
-    WLAN_NOTIFICATION_SOURCE_ONEX : Result:= 'WLAN_NOTIFICATION_SOURCE_ONEX';
-    WLAN_NOTIFICATION_SOURCE_ACM : Result:=  TypInfo.GetEnumName(System.TypeInfo(WLAN_NOTIFICATION_ACM),integer(NotificationCode));
-    WLAN_NOTIFICATION_SOURCE_MSM : Result:= TypInfo.GetEnumName(System.TypeInfo(WLAN_NOTIFICATION_MSM),integer(NotificationCode));
-    WLAN_NOTIFICATION_SOURCE_SECURITY : Result:= 'WLAN_NOTIFICATION_SOURCE_SECURITY';
-    WLAN_NOTIFICATION_SOURCE_IHV : Result:= 'WLAN_NOTIFICATION_SOURCE_IHV';
-    WLAN_NOTIFICATION_SOURCE_HNWK : Result:= 'WLAN_NOTIFICATION_SOURCE_HNWK';
-    WLAN_NOTIFICATION_SOURCE_ALL : Result:= 'WLAN_NOTIFICATION_SOURCE_ALL';
-  else
-    Result := 'NotificationSource???='+inttostr(NotificationSource);
-  end;
-end;
-
-function DOT11_AUTH_ALGORITHM_To_String( Dummy :Tndu_DOT11_AUTH_ALGORITHM):String;
-begin
-    Result:='';
-    case Dummy of
-        DOT11_AUTH_ALGO_80211_OPEN          : Result:= '80211_OPEN';
-        DOT11_AUTH_ALGO_80211_SHARED_KEY    : Result:= '80211_SHARED_KEY';
-        DOT11_AUTH_ALGO_WPA                 : Result:= 'WPA';
-        DOT11_AUTH_ALGO_WPA_PSK             : Result:= 'WPA_PSK';
-        DOT11_AUTH_ALGO_WPA_NONE            : Result:= 'WPA_NONE';
-        DOT11_AUTH_ALGO_RSNA                : Result:= 'RSNA';
-        DOT11_AUTH_ALGO_RSNA_PSK            : Result:= 'RSNA_PSK';
-        DOT11_AUTH_ALGO_IHV_START           : Result:= 'IHV_START';
-        DOT11_AUTH_ALGO_IHV_END             : Result:= 'IHV_END';
-    end;
-end;
-
-function DOT11_CIPHER_ALGORITHM_To_String( Dummy :Tndu_DOT11_CIPHER_ALGORITHM):String;
-begin
-    Result:='';
-    case Dummy of
-  	DOT11_CIPHER_ALGO_NONE      : Result:= 'NONE';
-    DOT11_CIPHER_ALGO_WEP40     : Result:= 'WEP40';
-    DOT11_CIPHER_ALGO_TKIP      : Result:= 'TKIP';
-    DOT11_CIPHER_ALGO_CCMP      : Result:= 'CCMP';
-    DOT11_CIPHER_ALGO_WEP104    : Result:= 'WEP104';
-    DOT11_CIPHER_ALGO_WPA_USE_GROUP : Result:= 'WPA_USE_GROUP OR RSN_USE_GROUP';
-    //DOT11_CIPHER_ALGO_RSN_USE_GROUP : Result:= 'RSN_USE_GROUP';
-    DOT11_CIPHER_ALGO_WEP           : Result:= 'WEP';
-    DOT11_CIPHER_ALGO_IHV_START     : Result:= 'IHV_START';
-    DOT11_CIPHER_ALGO_IHV_END       : Result:= 'IHV_END';
-    end;
-end;
-
-procedure TFORM1.WlanScan();
+procedure TFORM1.WlanList();
 const
   WLAN_AVAILABLE_NETWORK_INCLUDE_ALL_ADHOC_PROFILES =$00000001;
 var
@@ -131,7 +59,6 @@ var
   i                    : Integer;
   j                    : Integer;
   pAvailableNetworkList: Pndu_WLAN_AVAILABLE_NETWORK_LIST;
-  pInterfaceGuid       : PGUID;
   SDummy               : string;
   l:tlistItem;
 begin
@@ -150,6 +77,7 @@ begin
   for i := 0 to pInterface^.dwNumberOfItems - 1 do
   begin
    COMBOBOX1.Items.Add('Interface       ' + pInterface^.InterfaceInfo[i].strInterfaceDescription);
+   COMBOBOX1.ItemIndex := COMBOBOX1.Items.Count-1;
    edit1.Text:=('GUID            ' + GUIDToString(pInterface^.InterfaceInfo[i].InterfaceGuid));
 
    pInterfaceGuid:= @pInterface^.InterfaceInfo[pInterface^.dwIndex].InterfaceGuid;
@@ -208,7 +136,7 @@ end;
 
 procedure TForm1.Button3Click(Sender: TObject);
 begin
-  WlanScan();
+  WlanList();
 end;
 
 procedure TForm1.Button4Click(Sender: TObject);
@@ -216,11 +144,17 @@ begin
   RegisterNotification();
 end;
 
+procedure TForm1.Button5Click(Sender: TObject);
+begin
+  WlanScan(hClient,pInterfaceGuid,nil,nil,nil);
+end;
+
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   hClient := 0;
   WlanOpen();
-  WlanScan();
+  WlanList();
+  RegisterNotification();
 end;
 
 
@@ -236,16 +170,33 @@ begin
    begin
      Writeln('signal_quality_change: ', pcardinal(wlanData^.pData)^);
    end;
-   
+
+   if wlanData^.NotificationCode = Integer(wlan_notification_msm_connected) then
+   begin
+     Writeln('wlan_notification_msm_connected: ', 'wlanConnectionMode=',
+      TypInfo.GetEnumName(System.TypeInfo(WLAN_CONNECTION_MODE),integer(PWLAN_MSM_NOTIFICATION_DATA(wlanData^.pData)^.wlanConnectionMode)));
+     Writeln('wlan_notification_msm_connected: ', 'strProfileName=',PWLAN_MSM_NOTIFICATION_DATA(wlanData^.pData)^.strProfileName);
+
+     Writeln('wlan_notification_msm_connected: ', 'strProfileName=',PWLAN_MSM_NOTIFICATION_DATA(wlanData^.pData)^.strProfileName);
+
+
+   end;
+
+
+
 
    Writeln('');
 end;
 
 procedure TForm1.RegisterNotification;
 begin
-  WlanRegisterNotification( hClient, NDU_WLAN_NOTIFICATION_SOURCE_ALL, False,
-   @NotificationCallback,nil,nil,0);
+  //WlanRegisterNotification( hClient, NDU_WLAN_NOTIFICATION_SOURCE_ALL, False, @NotificationCallback,nil,nil,0);
+  WlanRegisterNotification( hClient, WLAN_NOTIFICATION_SOURCE_ACM, False, @NotificationCallback,nil,nil,0);
+
+  WlanScan(hClient,pInterfaceGuid,nil,nil,nil);
+
 end;
+
 
 end.
 

@@ -2,7 +2,8 @@ program WifiScanner;
 
 uses
   Forms,
-  uWifiScanner in 'uWifiScanner.pas' {Form1};
+  uWifiScanner in 'uWifiScanner.pas' {Form1},
+  WlanAPIutils in '..\..\WlanAPIutils.pas';
 
 {$R *.res}
 

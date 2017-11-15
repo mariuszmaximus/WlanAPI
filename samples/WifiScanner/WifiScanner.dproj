@@ -41,6 +41,7 @@
 			<DCCReference Include="uWifiScanner.pas">
 				<Form>Form1</Form>
 			</DCCReference>
+			<DCCReference Include="..\..\WlanAPIutils.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

@@ -93,25 +93,34 @@ object Form1: TForm1
       Width = 75
       Height = 25
       Caption = 'WlanClose'
-      TabOrder = 5
+      TabOrder = 6
     end
     object Button3: TButton
       Left = 147
       Top = 62
       Width = 75
       Height = 25
-      Caption = 'WlanScan'
+      Caption = 'WlanList'
       TabOrder = 3
       OnClick = Button3Click
     end
     object Button4: TButton
-      Left = 248
+      Left = 228
       Top = 62
       Width = 137
       Height = 25
       Caption = 'RegisterNotification'
       TabOrder = 4
       OnClick = Button4Click
+    end
+    object Button5: TButton
+      Left = 371
+      Top = 62
+      Width = 75
+      Height = 25
+      Caption = 'Button5'
+      TabOrder = 5
+      OnClick = Button5Click
     end
   end
 end
